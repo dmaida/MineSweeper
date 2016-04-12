@@ -1,13 +1,19 @@
 package MineSweeper;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.Random;
+import java.util.Timer;
 
 import static java.lang.Math.min;
 import static java.lang.Math.random;
@@ -21,17 +27,23 @@ public class MineField extends Application {
     private static final int X_TILES = W / TILE_SIZE;
     private static final int Y_TILES = H / TILE_SIZE;
 
-    private static final int numbMines = 20; // total number of mines
+    private static  int numbMines = 10; // total number of mines
     private static int numExposedCells = 0;  // total cell exposed
 
     private Cell[][] grid = new Cell[X_TILES][Y_TILES];
 
 
 
+
+
     public void createMineField() {
+
         int w = X_TILES, h = Y_TILES;
         int n = w*h; //total cells left
         int m = numbMines; //Number of mines to set
+
+        Pane root = new GridPane();
+        root.setPrefSize(w, h);
 
         int row, col;
 
@@ -57,13 +69,14 @@ public class MineField extends Application {
             }
             System.out.print("\n");
         }
+        numbMines = m;
             System.out.print("\n");
         for (row = 0; row < grid.length; row++) {//calculate surrounding mine counts
             for (col = 0; col < grid[0].length; col++) {
                 int i, j, count = 0;
                 Cell cell = grid[row][col];
-                for (j = -1; j < +1; j++) {
-                    for (i = -1; i < +1; i++) {
+                for (j = -1; j <= +1; j++) {
+                    for (i = -1; i <= +1; i++) {
                         if (i == 0 && j == 0) continue;
                         int rr = row + j, cc = col + i;
                         if (rr < 0 || rr >= h || cc < 0 || cc >= w) continue;
@@ -76,9 +89,11 @@ public class MineField extends Application {
                 cell.numbSurroundingmines = count;
             }
         }
-        System.out.print("\n");
+
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
+
+
                 System.out.print(grid[i][j].numbSurroundingmines+ " ");
             }
             System.out.print("\n");
@@ -116,12 +131,56 @@ public class MineField extends Application {
 
 
     public int expose (int column, int row ) {
-        return 0;
+        Cell cell = grid[row][column];
+
+        if (cell.hashMine) { //game over, exposed mine
+            return -1;
+        }
+        if (cell.exposed) return -2;
+
+        cell.exposed = true;
+        numExposedCells++;
+
+        int n = cell.numbSurroundingmines;
+
+        if (n == 0) {
+            int w = X_TILES, h = Y_TILES;
+            boolean changed =true;
+            while(changed) {
+                int rr, cc;
+                changed = false;
+                for (rr = 0; rr < h; rr++) {
+                    for (cc = 0; cc < w; cc++) {
+                        if (isExposed(cc, rr)) {
+                            changed = true;
+                        }
+                    }
+                }
+            };
+        }
+        return n;
     }
 
-    public int isExposed(int column, int row) {
-
-        return 0;
+    public boolean isExposed(int column, int row) {
+        Cell cell = grid[row][column];
+        if(!cell.exposed && !cell.hashMine) {
+            int w = X_TILES, h = Y_TILES;
+            int i, j;
+            for (j = -1; j <= +1; j++) {
+                for (i = -1; i <= +1; i++) {
+                    if (i == 0 && j ==0 ) continue;
+                    int rr = row+j, cc = column+i;
+                    if (rr < 0 || rr >= h ||  cc <0 || cc >= w) continue;
+                    Cell neighbor = grid[rr][cc];
+                    if (neighbor.exposed && neighbor.numbSurroundingmines == 0) {
+                        cell.exposed = true;
+                        numExposedCells++;
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /*
@@ -144,10 +203,7 @@ public class MineField extends Application {
     public static void main(String[] args) {
 
         MineField mineField = new MineField();
-        mineField.createMineField();
 
-        System.out.print("\n");
-        
-        //launch(args);
+        launch(args);
     }
 }
