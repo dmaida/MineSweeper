@@ -24,10 +24,10 @@ public class MineField extends Application {
 
     private static  int numbMines = 10; // total number of mines
     private static int numExposedCells = 0;  // total cell exposed
-    private static int height;
-    private static int width;
+    public static int height;
+    public static int width;
 
-    private Cell[][] grid;
+    public Cell[][] grid;
 
     public void createMineField(int level) {
 
