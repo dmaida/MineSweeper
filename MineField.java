@@ -14,43 +14,56 @@ import javafx.stage.Stage;
 
 import java.util.Random;
 import java.util.Timer;
+import java.util.concurrent.SynchronousQueue;
 
 import static java.lang.Math.min;
 import static java.lang.Math.random;
 
 public class MineField extends Application {
 
-    private static final int TILE_SIZE = 40;
-    private static final int W = 300;
-    private static final int H = 300;
-
-    private static final int X_TILES = W / TILE_SIZE;
-    private static final int Y_TILES = H / TILE_SIZE;
 
     private static  int numbMines = 10; // total number of mines
     private static int numExposedCells = 0;  // total cell exposed
+    private static int height;
+    private static int width;
 
-    private Cell[][] grid = new Cell[X_TILES][Y_TILES];
+    private Cell[][] grid;
 
+    public void createMineField(int level) {
 
+        int w = 0;
+        int h = 0;
 
+        if (level == 1){
+            h = 9;
+            w = 9;
+            numbMines = 10;
+        }
+        if (level == 2){
+            h = 16;
+            w = 16;
+            numbMines = 40;
+        }
+        if (level == 3){
+            h = 16;
+            w = 30;
+            numbMines = 99;
+        }
 
+        height= h;
+        width = w;
 
-    public void createMineField() {
+        grid = new Cell[h][w];
 
-        int w = X_TILES, h = Y_TILES;
         int n = w*h; //total cells left
         int m = numbMines; //Number of mines to set
-
-        Pane root = new GridPane();
-        root.setPrefSize(w, h);
 
         int row, col;
 
         numExposedCells = 0;
 
-        for (row = 0; row < grid.length; row++) { // place mines
-            for ( col = 0; col < grid[0].length; col++) {
+        for (row = 0; row < h; row++) { // place mines
+            for ( col = 0; col < w; col++) {
                 Cell cell = new Cell();
                 cell.exposed = cell.marked = cell.hashMine = false;
                 double p = (double) m / (double )n ; //probability of placing mine
@@ -62,17 +75,20 @@ public class MineField extends Application {
                 n--;
                 grid[row][col] = cell;
                 if (grid[row][col].hashMine) {
-                    System.out.print("X" + " ");
+                   System.out.print("X" + " ");
                 } else {
                     System.out.print("*"+ " ");
                 }
             }
             System.out.print("\n");
         }
+
         numbMines = m;
-            System.out.print("\n");
-        for (row = 0; row < grid.length; row++) {//calculate surrounding mine counts
-            for (col = 0; col < grid[0].length; col++) {
+
+        System.out.print("\n");
+
+        for (row = 0; row < h; row++) {//calculate surrounding mine counts
+            for (col = 0; col < w; col++) {
                 int i, j, count = 0;
                 Cell cell = grid[row][col];
                 for (j = -1; j <= +1; j++) {
@@ -115,21 +131,6 @@ public class MineField extends Application {
         return false;
     }
 
-
-    /*
-        expose(int column, int row)
-        0 if a cell was safely exposed and no bombs are  adjacent to it. In this case,
-        all adjacent cells with 0 adjacent bombs should also be exposed. These newly
-        revealed neighbors can be revealed by calls to isExposed
-
-        1-8 if a cell was safely exposed and 1 or more bombs is adjacent to it
-
-        -1 if a bomb was exposed at this time, game over.
-
-     */
-
-
-
     public int expose (int column, int row ) {
         Cell cell = grid[row][column];
 
@@ -144,7 +145,7 @@ public class MineField extends Application {
         int n = cell.numbSurroundingmines;
 
         if (n == 0) {
-            int w = X_TILES, h = Y_TILES;
+            int w = width, h = height;
             boolean changed =true;
             while(changed) {
                 int rr, cc;
@@ -164,7 +165,7 @@ public class MineField extends Application {
     public boolean isExposed(int column, int row) {
         Cell cell = grid[row][column];
         if(!cell.exposed && !cell.hashMine) {
-            int w = X_TILES, h = Y_TILES;
+            int w = width, h = height;
             int i, j;
             for (j = -1; j <= +1; j++) {
                 for (i = -1; i <= +1; i++) {
@@ -183,11 +184,6 @@ public class MineField extends Application {
         return false;
     }
 
-    /*
-            At any point in time a call to unexposedCount() should return how many cells
-            can be exposed without setting off a bomb
-     */
-
     public int unexposedCount() {
         return 0;
     }
@@ -196,14 +192,15 @@ public class MineField extends Application {
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MineSweeper.fxml"));
         primaryStage.setTitle("MineSweeper");
-        primaryStage.setScene(new Scene(root, 300, 300));
+        Scene scene = new Scene(root, 300, 300);
+        primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     public static void main(String[] args) {
+        //MineField mineField = new MineField();
+        //mineField.createMineField(3);
 
-        MineField mineField = new MineField();
-
-        launch(args);
+       launch(args);
     }
 }
