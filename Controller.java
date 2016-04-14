@@ -16,6 +16,7 @@ import java.util.concurrent.SynchronousQueue;
 public class Controller {
     private int row;
     private int col;
+    MineField mineField;
 
 
 
@@ -90,7 +91,7 @@ public class Controller {
     public void startButton ( ) {
 
 
-        MineField mineField = new MineField();
+        mineField = new MineField();
         mineField.createMineField(level);
         field = mineField;
         System.out.println("You pressed start");
@@ -167,6 +168,9 @@ public class Controller {
         HBoxMatrix = new HBox[row][col];
 
 
+
+
+
         for (int i = 0; i < row; i++) {
             RowConstraints row = new RowConstraints();
             row.setPercentHeight(25);
@@ -181,8 +185,6 @@ public class Controller {
 
 
         }
-
-
 
         for (int r = 0; r < row; r++) {
             for (int c = 0; c < col; c++) {
@@ -202,18 +204,31 @@ public class Controller {
                     buttonMatrix[r][c].setText("");
                 }
 
-                buttonMatrix[r][c].setOnAction(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent event) {
-                    }
-                });
-
                 buttonMatrix[r][c].setPrefSize(60, 60);
                 HBoxMatrix[r][c].setAlignment(Pos.CENTER);
                 HBoxMatrix[r][c].getChildren().add(buttonMatrix[r][c]);
                 gp.add(HBoxMatrix[r][c], c, r);
+
+                HBox currentButton = HBoxMatrix[r][c];
+
+                buttonMatrix[r][c].setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+
+                        System.out.println("row = " + gp.getRowIndex(currentButton));
+                        System.out.println("col = " + gp.getColumnIndex(currentButton));
+                        expose(gp.getColumnIndex(currentButton), gp.getRowIndex(currentButton));
+
+                    }
+                });
             }
         }
+        System.out.println(gp.getChildren().indexOf(gp.getChildren().get(4)));
+        gp.getChildren().indexOf(gp.getChildren().get(9));
+        gp.getChildren().get(100).setVisible(false);
+        System.out.println("row = " + gp.getRowIndex(gp.getChildren().get(100)));
+        System.out.println("col = " + gp.getColumnIndex(gp.getChildren().get(100)));
+
     }
 
     /*
