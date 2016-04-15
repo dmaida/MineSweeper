@@ -74,18 +74,10 @@ public class MineField extends Application {
                 }
                 n--;
                 grid[row][col] = cell;
-                if (grid[row][col].hashMine) {
-                   System.out.print("X" + " ");
-                } else {
-                    System.out.print("*"+ " ");
-                }
             }
-            System.out.print("\n");
         }
 
         numbMines = m;
-
-        System.out.print("\n");
 
         for (row = 0; row < h; row++) {//calculate surrounding mine counts
             for (col = 0; col < w; col++) {
@@ -104,15 +96,6 @@ public class MineField extends Application {
                 }
                 cell.numbSurroundingmines = count;
             }
-        }
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-
-
-                System.out.print(grid[i][j].numbSurroundingmines+ " ");
-            }
-            System.out.print("\n");
         }
     }
 
@@ -158,6 +141,15 @@ public class MineField extends Application {
                     }
                 }
             };
+        }
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+
+
+                System.out.print(grid[i][j].numbSurroundingmines+ " ");
+            }
+            System.out.print("\n");
         }
         return n;
     }
