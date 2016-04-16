@@ -22,10 +22,13 @@ import static java.lang.Math.random;
 public class MineField extends Application {
 
 
-    private static  int numbMines = 10; // total number of mines
-    private static int numExposedCells = 0;  // total cell exposed
-    public static int height;
-    public static int width;
+    private int numbMines; // total number of mines
+    private int numExposedCells;  // total cell exposed
+    private int totalCells;
+    public boolean lost;
+
+    public int height;
+    public int width;
 
     public Cell[][] grid;
 
@@ -56,6 +59,8 @@ public class MineField extends Application {
         grid = new Cell[h][w];
 
         int n = w*h; //total cells left
+        totalCells = n;
+
         int m = numbMines; //Number of mines to set
 
         int row, col;
@@ -76,8 +81,6 @@ public class MineField extends Application {
                 grid[row][col] = cell;
             }
         }
-
-        numbMines = m;
 
         for (row = 0; row < h; row++) {//calculate surrounding mine counts
             for (col = 0; col < w; col++) {
@@ -107,17 +110,17 @@ public class MineField extends Application {
             cell.marked = true;
             return true;
         }
-        else if (cell.marked) {// if cell is already  marked, unmark it
+        else {// if cell is already  marked, unmark it
             cell.marked = false;
             return false;
         }
-        return false;
     }
 
     public int expose (int column, int row ) {
         Cell cell = grid[row][column];
 
         if (cell.hashMine) { //game over, exposed mine
+            lost = true;
             return -1;
         }
         if (cell.exposed) return -2;
@@ -141,15 +144,6 @@ public class MineField extends Application {
                     }
                 }
             };
-        }
-
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-
-
-                System.out.print(grid[i][j].numbSurroundingmines+ " ");
-            }
-            System.out.print("\n");
         }
         return n;
     }
@@ -177,22 +171,20 @@ public class MineField extends Application {
     }
 
     public int unexposedCount() {
-        return 0;
+        int unexposedCounter = (totalCells - numExposedCells - numbMines);
+        return unexposedCounter;
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MineSweeper.fxml"));
         primaryStage.setTitle("MineSweeper");
-        Scene scene = new Scene(root, 300, 300);
+        Scene scene = new Scene(root, 600, 600);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
     public static void main(String[] args) {
-        //MineField mineField = new MineField();
-        //mineField.createMineField(3);
-
        launch(args);
     }
 }
