@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import sun.awt.windows.ThemeReader;
 
 import java.util.Random;
 import java.util.Timer;
@@ -20,8 +21,6 @@ import static java.lang.Math.min;
 import static java.lang.Math.random;
 
 public class MineField extends Application {
-
-
     private int numbMines; // total number of mines
     private int numExposedCells;  // total cell exposed
     private int totalCells;

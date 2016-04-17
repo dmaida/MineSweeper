@@ -1,6 +1,7 @@
 package MineSweeper;
 
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -9,26 +10,25 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.scene.text.Text;
 
-import java.util.Random;
-import java.util.concurrent.SynchronousQueue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Controller {
 
-
     private int row;
-
 
     private int col;
 
-
     MineField mineField;
+
+    Timer timer;
 
     @FXML
     private GridPane gp;
@@ -55,15 +55,24 @@ public class Controller {
     @FXML
     private Label minesLeft;
 
+    @FXML
+    private Button startBt;
 
+    @FXML
+    private MenuButton menuDif;
 
+    @FXML
+    private Label clock;
 
     @FXML
     private void initialize() {
-
         level = 1;
         row = 9;
         col = 9;
+
+        Image bomb = new Image(getClass().getResourceAsStream("smiley.png"));
+        startBt.setBackground(Background.EMPTY.EMPTY);
+        startBt.setGraphic(new ImageView(bomb));
 
         startButton();
         level1.setOnAction(new EventHandler<ActionEvent>() {
@@ -72,6 +81,7 @@ public class Controller {
                 level = 1;
                 row = 9;
                 col = 9;
+                menuDif.setText("Beginner");
             }
         });
 
@@ -81,6 +91,7 @@ public class Controller {
                 level = 2;
                 row = 16;
                 col = 16;
+                menuDif.setText("Intermediate");
             }
         });
 
@@ -90,12 +101,30 @@ public class Controller {
                 level = 3;
                 row = 16;
                 col = 30;
+                menuDif.setText("Expert");
             }
         });
     }
 
     @FXML
     public void startButton ( ) {
+        timer = new Timer();
+        TimerTask task = new TimerTask() {
+            int i = 0;
+            @Override
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        clock.setText(i+"");
+                        i++;
+                    }
+                });
+            }
+        };
+
+        timer.schedule(task, 0 , 1000);
+
+
         mineField = new MineField();
         mineField.createMineField(level);
         makeButtons();
@@ -104,8 +133,11 @@ public class Controller {
     public void gameOver() {
         minesLeft.setText("lost");
 
-        for (int r = 0; r < row; r++) {
-            for (int c = 0; c <  col; c++) {
+        timer.cancel();
+        timer = new Timer();
+
+        for (int r = 0; r < mineField.height; r++) {
+            for (int c = 0; c <  mineField.width; c++) {
 
                 if (mineField.grid[r][c].hashMine) {
                     buttonMatrix[r][c].setBackground(Background.EMPTY);
@@ -131,8 +163,8 @@ public class Controller {
             gameOver();
         }
 
-        for (int r = 0; r < row; r++) {
-            for (int c = 0; c < col; c++) {
+        for (int r = 0; r < mineField.height; r++) {
+            for (int c = 0; c < mineField.width; c++) {
                if (mineField.grid[r][c].exposed && mineField.grid[r][c].numbSurroundingmines == 0 ) {
                    buttonMatrix[r][c].setVisible(false);
                }
@@ -151,6 +183,7 @@ public class Controller {
     }
 
     public void makeButtons ( ) {
+
         minesLeft.setText(mineField.unexposedCount() +"");
         gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
         gp.getRowConstraints().removeAll(gp.getRowConstraints());
@@ -160,14 +193,16 @@ public class Controller {
 
         for (int i = 0; i < row; i++) {
             RowConstraints row = new RowConstraints();
-            row.setMaxHeight(45);
+            row.setMaxHeight(30);
+            row.setMinHeight(30);
             gp.getRowConstraints().add(row);
         }
 
         for (int i = 0; i < col; i++) {
 
             ColumnConstraints column = new ColumnConstraints();
-            column.setMaxWidth(45);
+            column.setMaxWidth(30);
+            column.setMinWidth(30);
             gp.getColumnConstraints().add(column);
         }
 
@@ -175,7 +210,7 @@ public class Controller {
             for (int c = 0; c < col; c++) {
                 HBoxMatrix[r][c] = new HBox();
                 buttonMatrix[r][c] = new Button();
-                buttonMatrix[r][c].setPrefSize(60, 60);
+                buttonMatrix[r][c].setPrefSize(30, 30);
                 HBoxMatrix[r][c].setAlignment(Pos.CENTER);
                 HBoxMatrix[r][c].getChildren().add(buttonMatrix[r][c]);
                 gp.add(HBoxMatrix[r][c], c, r);
@@ -197,26 +232,10 @@ public class Controller {
                                 mineField.mark(gp.getColumnIndex(currentButton), gp.getRowIndex(currentButton));
                             }
                         }
-
                         updateView();
                     }
                 });
             }
         }
     }
-
-    /*
-
-    The Controller should create a new Minefield Model in response to the programs
-    initialization or in response to a press of the "start" button
-
-    Should call a mark method in the MineField object to toggle a cells marked status
-    in response to a left mouse click
-
-    Should call a expose method in the MineField object to expose a cell in response
-    to a right mouse click
-
-    Should update the View in response to mark/expose/start requests
-     */
-
 }
