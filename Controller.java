@@ -65,6 +65,9 @@ public class Controller {
     private Label clock;
 
     @FXML
+    private boolean isTimerSet;
+
+    @FXML
     private void initialize() {
         level = 1;
         row = 9;
@@ -108,6 +111,15 @@ public class Controller {
 
     @FXML
     public void startButton ( ) {
+
+        restartTime();
+        mineField = new MineField();
+        mineField.createMineField(level);
+        makeButtons();
+    }
+
+    public void setTimer () {
+
         timer = new Timer();
         TimerTask task = new TimerTask() {
             int i = 0;
@@ -123,18 +135,23 @@ public class Controller {
         };
 
         timer.schedule(task, 0 , 1000);
+    }
 
+    public void restartTime () {
 
-        mineField = new MineField();
-        mineField.createMineField(level);
-        makeButtons();
+        if(isTimerSet) {
+            isTimerSet = false;
+            timer.cancel();
+            clock.setText("0");
+        }
     }
 
     public void gameOver() {
-        minesLeft.setText("lost");
+        minesLeft.setText("You lost");
 
         timer.cancel();
         timer = new Timer();
+        isTimerSet = false;
 
         for (int r = 0; r < mineField.height; r++) {
             for (int c = 0; c <  mineField.width; c++) {
@@ -149,7 +166,9 @@ public class Controller {
     }
 
     public void win() {
-        minesLeft.setText("Won");
+        timer.cancel();
+        timer = new Timer();
+        minesLeft.setText("You won");
     }
 
     public void updateView() {
@@ -225,6 +244,12 @@ public class Controller {
                         int c = gp.getColumnIndex(currentButton);
 
                         if (mineField.unexposedCount() != 0 && mineField.lost == false) {
+
+                            if (!isTimerSet) {
+                                setTimer();
+                                isTimerSet = true;
+                            }
+
                             if (event.isPrimaryButtonDown() && !mineField.grid[r][c].marked) {
                                 mineField.expose(c, r);
 
