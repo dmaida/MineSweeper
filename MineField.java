@@ -1,6 +1,9 @@
 package MineSweeper;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -11,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import sun.awt.windows.ThemeReader;
 
 import java.util.Random;
@@ -19,6 +23,7 @@ import java.util.concurrent.SynchronousQueue;
 
 import static java.lang.Math.min;
 import static java.lang.Math.random;
+import static java.lang.Math.scalb;
 
 public class MineField extends Application {
     private int numbMines; // total number of mines
@@ -28,8 +33,11 @@ public class MineField extends Application {
 
     public int height;
     public int width;
+    public static Timer timer;
 
     public Cell[][] grid;
+
+    public GridPane gp;
 
     public void createMineField(int level) {
 
@@ -174,11 +182,29 @@ public class MineField extends Application {
         return unexposedCounter;
     }
 
+    public void killTimer() {
+
+        System.out.println("Kill timer");
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("MineSweeper.fxml"));
         primaryStage.setTitle("MineSweeper");
+
+
+
+
+        primaryStage.setOnCloseRequest(event -> {
+
+            if (timer != null) {
+                timer.cancel();
+            }
+    });
+
         Scene scene = new Scene(root, 600, 600);
+
+
         primaryStage.setScene(scene);
         primaryStage.show();
     }

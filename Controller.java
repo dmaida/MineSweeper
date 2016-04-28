@@ -1,8 +1,13 @@
 package MineSweeper;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.binding.Binding.*;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
@@ -16,6 +21,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,7 +35,8 @@ public class Controller {
 
     MineField mineField;
 
-    Timer timer;
+    public Button[][] buttonMatrix;
+
 
     @FXML
     private GridPane gp;
@@ -42,14 +50,14 @@ public class Controller {
     @FXML
     private MenuItem level3;
 
+    @FXML
+    private BorderPane bp;
+
 
     @FXML
     private int level;
 
-    @FXML
-    private Button[][] buttonMatrix;
 
-    @FXML
     private HBox[][]  HBoxMatrix;
 
     @FXML
@@ -69,6 +77,7 @@ public class Controller {
 
     @FXML
     private void initialize() {
+
         level = 1;
         row = 9;
         col = 9;
@@ -116,11 +125,13 @@ public class Controller {
         mineField = new MineField();
         mineField.createMineField(level);
         makeButtons();
+
     }
 
     public void setTimer () {
 
-        timer = new Timer();
+
+        MineField.timer = new Timer();
         TimerTask task = new TimerTask() {
             int i = 0;
             @Override
@@ -134,14 +145,30 @@ public class Controller {
             }
         };
 
-        timer.schedule(task, 0 , 1000);
+        MineField.timer.schedule(task, 0 , 1000);
+    }
+
+    public void handleCloseButton() {
+
+
+
+        Scene scene = bp.getScene();
+        if (scene != null) {
+            Window window = scene.getWindow();
+            if (window != null) {
+                System.out.println(window.getHeight());
+                System.out.println(window.getHeight());
+
+
+            }
+        }
     }
 
     public void restartTime () {
 
         if(isTimerSet) {
             isTimerSet = false;
-            timer.cancel();
+            MineField.timer.cancel();
             clock.setText("0");
         }
     }
@@ -149,8 +176,8 @@ public class Controller {
     public void gameOver() {
         minesLeft.setText("You lost");
 
-        timer.cancel();
-        timer = new Timer();
+        MineField.timer.cancel();
+        MineField.timer = new Timer();
         isTimerSet = false;
 
         for (int r = 0; r < mineField.height; r++) {
@@ -166,8 +193,8 @@ public class Controller {
     }
 
     public void win() {
-        timer.cancel();
-        timer = new Timer();
+        MineField.timer.cancel();
+        MineField.timer = new Timer();
         minesLeft.setText("You won");
     }
 
@@ -202,6 +229,8 @@ public class Controller {
     }
 
     public void makeButtons ( ) {
+
+
 
         minesLeft.setText(mineField.unexposedCount() +"");
         gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
@@ -262,5 +291,6 @@ public class Controller {
                 });
             }
         }
+        handleCloseButton();
     }
 }
