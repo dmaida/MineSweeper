@@ -20,11 +20,10 @@ public class MineField extends Application {
     public int width;
     public static Timer timer;
     public static boolean isTimerSet;
+    public boolean isMineFieldSet;
     public Cell[][] grid;
 
-
-
-    public void createMineField(int level) {
+    public void createMineField(int level, int skipRow, int skipCol) {
 
         int w = 0;
         int h = 0;
@@ -65,7 +64,7 @@ public class MineField extends Application {
                 cell.exposed = cell.marked = cell.hashMine = false;
                 double p = (double) m / (double )n ; //probability of placing mine
                 double g = random();
-                if (g < p) {
+                if (g < p && row != skipRow && col != skipCol) {
                     cell.hashMine =true;
                     m--;
                 }
@@ -172,7 +171,8 @@ public class MineField extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("MineSweeper.fxml"));
         primaryStage.setTitle("MineSweeper");
         primaryStage.setMinHeight(900);
-        primaryStage.setMinWidth(900);
+        primaryStage.setMinWidth(950);
+
 
         primaryStage.setOnCloseRequest(event -> {
 
@@ -183,11 +183,9 @@ public class MineField extends Application {
                     }
                 }
             });
-
     });
 
         Scene scene = new Scene(root, 900, 900);
-
 
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -5,7 +5,6 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -15,16 +14,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class Controller {
-
-    private int row;
-
-    private int col;
-
-    MineField mineField;
-
-    public Button[][] buttonMatrix;
-
-
     @FXML
     private GridPane gp;
     @FXML
@@ -36,8 +25,6 @@ public class Controller {
     @FXML
     private int level;
     @FXML
-    private HBox[][]  HBoxMatrix;
-    @FXML
     private Label minesLeft;
     @FXML
     private Button startBt;
@@ -45,9 +32,24 @@ public class Controller {
     private MenuButton menuDif;
     @FXML
     private Label clock;
+    @FXML
+    private int row;
+    @FXML
+    private int col;
+    @FXML
+    MineField mineField;
+    @FXML
+    public Button[][] buttonMatrix;
+    @FXML
+    private int skipRow;
+    @FXML
+    private int skipCol;
 
     @FXML
     private void initialize() {
+
+        mineField = new MineField();
+        makeButtons();
 
         level = 1;
         row = 9;
@@ -57,7 +59,6 @@ public class Controller {
         startBt.setBackground(Background.EMPTY.EMPTY);
         startBt.setGraphic(new ImageView(bomb));
 
-        startButton();
         level1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -87,15 +88,16 @@ public class Controller {
                 menuDif.setText("Expert");
             }
         });
+
+        startButton();
     }
 
     @FXML
     public void startButton ( ) {
-
         restartTime();
         mineField = new MineField();
-        mineField.createMineField(level);
         makeButtons();
+        mineField.createMineField(level, skipRow, skipCol);
     }
 
     public void setTimer () {
@@ -110,7 +112,6 @@ public class Controller {
             public void run() {
                 Platform.runLater(new Runnable() {
                     public void run() {
-                        System.out.println(i);
                         clock.setText(i+"");
                         i++;
                     }
@@ -123,25 +124,36 @@ public class Controller {
 
     public void restartTime () {
 
-        if(mineField.isTimerSet) {
-            mineField.isTimerSet = false;
-            MineField.timer.cancel();
-            clock.setText("0");
-        }
+        Platform.runLater(new Runnable() {
+            public void run() {
+                if (mineField.isTimerSet) {
+                    MineField.timer.cancel();
+                    mineField.isTimerSet = false;
+                    clock.setText("0");
+                }
+            }
+        });
     }
 
     public void stopTime() {
-        MineField.timer.cancel();
-        MineField.timer = new Timer();
-        mineField.isTimerSet = false;
+
+        Platform.runLater(new Runnable() {
+            public void run() {
+                if (mineField.isTimerSet) {
+                    MineField.timer.cancel();
+                    mineField.isTimerSet = false;
+                }
+            }
+        });
     }
 
     public void gameOver() {
         stopTime();
+        minesLeft.setText("You Lost");
         for (int r = 0; r < mineField.height; r++) {
             for (int c = 0; c <  mineField.width; c++) {
-
                 if (mineField.grid[r][c].hashMine) {
+                    buttonMatrix[r][c].setText("");
                     buttonMatrix[r][c].setBackground(Background.EMPTY);
                     Image bomb = new Image(getClass().getResourceAsStream("cartoon-evil-bomb.png"));
                     buttonMatrix[r][c].setGraphic(new ImageView(bomb));
@@ -162,26 +174,26 @@ public class Controller {
         if (mineField.unexposedCount() == 0) {
             win();
         }
-        if (mineField.lost) {
-            gameOver();
-        }
-
         for (int r = 0; r < mineField.height; r++) {
             for (int c = 0; c < mineField.width; c++) {
                if (mineField.grid[r][c].exposed && mineField.grid[r][c].numbSurroundingmines == 0 ) {
                    buttonMatrix[r][c].setVisible(false);
                }
+
                 else if(mineField.grid[r][c].exposed) {
                    buttonMatrix[r][c].setBackground(Background.EMPTY);
                    buttonMatrix[r][c].setText(mineField.grid[r][c].numbSurroundingmines+"");
                }
                 else if (mineField.grid[r][c].marked) {
-                    buttonMatrix[r][c].setText("X");
+                   buttonMatrix[r][c].setText("X");
                }
                 else if (!mineField.grid[r][c].marked) {
                    buttonMatrix[r][c].setText("");
                }
             }
+        }
+        if (mineField.lost) {
+            gameOver();
         }
     }
 
@@ -191,7 +203,7 @@ public class Controller {
         gp.getRowConstraints().removeAll(gp.getRowConstraints());
         gp.getChildren().removeAll(gp.getChildren());
         buttonMatrix = new Button[row][col];
-        HBoxMatrix = new HBox[row][col];
+
 
         for (int i = 0; i < row; i++) {
             RowConstraints row = new RowConstraints();
@@ -201,7 +213,6 @@ public class Controller {
         }
 
         for (int i = 0; i < col; i++) {
-
             ColumnConstraints column = new ColumnConstraints();
             column.setMaxWidth(30);
             column.setMinWidth(30);
@@ -210,21 +221,22 @@ public class Controller {
 
         for (int r = 0; r < row; r++) {
             for (int c = 0; c < col; c++) {
-                HBoxMatrix[r][c] = new HBox();
                 buttonMatrix[r][c] = new Button();
                 buttonMatrix[r][c].setPrefSize(30, 30);
-                HBoxMatrix[r][c].setAlignment(Pos.CENTER);
-                HBoxMatrix[r][c].getChildren().add(buttonMatrix[r][c]);
-                gp.add(HBoxMatrix[r][c], c, r);
-
-                HBox currentButton = HBoxMatrix[r][c];
-
+                gp.add(buttonMatrix[r][c], c, r);
+                Button currentButton = buttonMatrix[r][c];
                 buttonMatrix[r][c].setOnMousePressed(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
 
                         int r = gp.getRowIndex(currentButton);
                         int c = gp.getColumnIndex(currentButton);
+
+                        if (!mineField.isMineFieldSet) {
+                            skipRow =r;
+                            skipCol =c;
+                            mineField.isMineFieldSet = true;
+                        }
 
                         if (mineField.unexposedCount() != 0 && mineField.lost == false) {
 
@@ -237,7 +249,7 @@ public class Controller {
                                 mineField.expose(c, r);
 
                             } else if (event.isSecondaryButtonDown()) {
-                                mineField.mark(gp.getColumnIndex(currentButton), gp.getRowIndex(currentButton));
+                                mineField.mark(c, r);
                             }
                         }
                         updateView();
