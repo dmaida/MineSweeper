@@ -1,29 +1,16 @@
 package MineSweeper;
 
-import javafx.animation.AnimationTimer;
-import javafx.beans.binding.Binding.*;
+
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventDispatcher;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
-import javafx.stage.Window;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -40,40 +27,24 @@ public class Controller {
 
     @FXML
     private GridPane gp;
-
     @FXML
     private MenuItem level1;
-
     @FXML
     private MenuItem level2;
-
     @FXML
     private MenuItem level3;
-
-    @FXML
-    private BorderPane bp;
-
-
     @FXML
     private int level;
-
-
+    @FXML
     private HBox[][]  HBoxMatrix;
-
     @FXML
     private Label minesLeft;
-
     @FXML
     private Button startBt;
-
     @FXML
     private MenuButton menuDif;
-
     @FXML
     private Label clock;
-
-    @FXML
-    private boolean isTimerSet;
 
     @FXML
     private void initialize() {
@@ -125,7 +96,6 @@ public class Controller {
         mineField = new MineField();
         mineField.createMineField(level);
         makeButtons();
-
     }
 
     public void setTimer () {
@@ -134,10 +104,13 @@ public class Controller {
         MineField.timer = new Timer();
         TimerTask task = new TimerTask() {
             int i = 0;
+
+
             @Override
             public void run() {
                 Platform.runLater(new Runnable() {
                     public void run() {
+                        System.out.println(i);
                         clock.setText(i+"");
                         i++;
                     }
@@ -148,38 +121,23 @@ public class Controller {
         MineField.timer.schedule(task, 0 , 1000);
     }
 
-    public void handleCloseButton() {
-
-
-
-        Scene scene = bp.getScene();
-        if (scene != null) {
-            Window window = scene.getWindow();
-            if (window != null) {
-                System.out.println(window.getHeight());
-                System.out.println(window.getHeight());
-
-
-            }
-        }
-    }
-
     public void restartTime () {
 
-        if(isTimerSet) {
-            isTimerSet = false;
+        if(mineField.isTimerSet) {
+            mineField.isTimerSet = false;
             MineField.timer.cancel();
             clock.setText("0");
         }
     }
 
-    public void gameOver() {
-        minesLeft.setText("You lost");
-
+    public void stopTime() {
         MineField.timer.cancel();
         MineField.timer = new Timer();
-        isTimerSet = false;
+        mineField.isTimerSet = false;
+    }
 
+    public void gameOver() {
+        stopTime();
         for (int r = 0; r < mineField.height; r++) {
             for (int c = 0; c <  mineField.width; c++) {
 
@@ -193,8 +151,7 @@ public class Controller {
     }
 
     public void win() {
-        MineField.timer.cancel();
-        MineField.timer = new Timer();
+        stopTime();
         minesLeft.setText("You won");
     }
 
@@ -229,9 +186,6 @@ public class Controller {
     }
 
     public void makeButtons ( ) {
-
-
-
         minesLeft.setText(mineField.unexposedCount() +"");
         gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
         gp.getRowConstraints().removeAll(gp.getRowConstraints());
@@ -274,9 +228,9 @@ public class Controller {
 
                         if (mineField.unexposedCount() != 0 && mineField.lost == false) {
 
-                            if (!isTimerSet) {
+                            if (!mineField.isTimerSet) {
                                 setTimer();
-                                isTimerSet = true;
+                                mineField.isTimerSet = true;
                             }
 
                             if (event.isPrimaryButtonDown() && !mineField.grid[r][c].marked) {
@@ -291,6 +245,5 @@ public class Controller {
                 });
             }
         }
-        handleCloseButton();
     }
 }
