@@ -47,10 +47,6 @@ public class Controller {
 
     @FXML
     private void initialize() {
-
-        mineField = new MineField();
-        makeButtons();
-
         level = 1;
         row = 9;
         col = 9;
@@ -96,8 +92,8 @@ public class Controller {
     public void startButton ( ) {
         restartTime();
         mineField = new MineField();
+        mineField.createMineField(level);
         makeButtons();
-        mineField.createMineField(level, skipRow, skipCol);
     }
 
     public void setTimer () {
@@ -231,12 +227,6 @@ public class Controller {
 
                         int r = gp.getRowIndex(currentButton);
                         int c = gp.getColumnIndex(currentButton);
-
-                        if (!mineField.isMineFieldSet) {
-                            skipRow =r;
-                            skipCol =c;
-                            mineField.isMineFieldSet = true;
-                        }
 
                         if (mineField.unexposedCount() != 0 && mineField.lost == false) {
 

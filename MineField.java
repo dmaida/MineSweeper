@@ -23,7 +23,7 @@ public class MineField extends Application {
     public boolean isMineFieldSet;
     public Cell[][] grid;
 
-    public void createMineField(int level, int skipRow, int skipCol) {
+    public void createMineField(int level) {
 
         int w = 0;
         int h = 0;
@@ -56,6 +56,8 @@ public class MineField extends Application {
 
         int row, col;
 
+
+
         numExposedCells = 0;
 
         for (row = 0; row < h; row++) { // place mines
@@ -64,7 +66,7 @@ public class MineField extends Application {
                 cell.exposed = cell.marked = cell.hashMine = false;
                 double p = (double) m / (double )n ; //probability of placing mine
                 double g = random();
-                if (g < p && row != skipRow && col != skipCol) {
+                if (g < p ) {
                     cell.hashMine =true;
                     m--;
                 }
