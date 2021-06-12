@@ -12,7 +12,7 @@ import static java.lang.Math.random;
 
 public class MineField extends Application {
     private int numbMines; // total number of mines
-    private int numExposedCells;  // total cell exposed
+    private int numExposedCells; // total cell exposed
     private int totalCells;
     public boolean lost;
 
@@ -28,46 +28,44 @@ public class MineField extends Application {
         int w = 0;
         int h = 0;
 
-        if (level == 1){
+        if (level == 1) {
             h = 9;
             w = 9;
             numbMines = 10;
         }
-        if (level == 2){
+        if (level == 2) {
             h = 16;
             w = 16;
             numbMines = 40;
         }
-        if (level == 3){
+        if (level == 3) {
             h = 16;
             w = 30;
             numbMines = 99;
         }
 
-        height= h;
+        height = h;
         width = w;
 
         grid = new Cell[h][w];
 
-        int n = w*h; //total cells left
+        int n = w * h; // total cells left
         totalCells = n;
 
-        int m = numbMines; //Number of mines to set
+        int m = numbMines; // Number of mines to set
 
         int row, col;
-
-
 
         numExposedCells = 0;
 
         for (row = 0; row < h; row++) { // place mines
-            for ( col = 0; col < w; col++) {
+            for (col = 0; col < w; col++) {
                 Cell cell = new Cell();
                 cell.exposed = cell.marked = cell.hashMine = false;
-                double p = (double) m / (double )n ; //probability of placing mine
+                double p = (double) m / (double) n; // probability of placing mine
                 double g = random();
-                if (g < p ) {
-                    cell.hashMine =true;
+                if (g < p) {
+                    cell.hashMine = true;
                     m--;
                 }
                 n--;
@@ -75,15 +73,17 @@ public class MineField extends Application {
             }
         }
 
-        for (row = 0; row < h; row++) {//calculate surrounding mine counts
+        for (row = 0; row < h; row++) {// calculate surrounding mine counts
             for (col = 0; col < w; col++) {
                 int i, j, count = 0;
                 Cell cell = grid[row][col];
                 for (j = -1; j <= +1; j++) {
                     for (i = -1; i <= +1; i++) {
-                        if (i == 0 && j == 0) continue;
+                        if (i == 0 && j == 0)
+                            continue;
                         int rr = row + j, cc = col + i;
-                        if (rr < 0 || rr >= h || cc < 0 || cc >= w) continue;
+                        if (rr < 0 || rr >= h || cc < 0 || cc >= w)
+                            continue;
                         Cell neighbor = grid[rr][cc];
                         if (neighbor.hashMine) {
                             count++;
@@ -95,28 +95,28 @@ public class MineField extends Application {
         }
     }
 
-    public boolean mark(int column, int row ) { //mark a Cell
+    public boolean mark(int column, int row) { // mark a Cell
 
         Cell cell = grid[row][column];
 
         if (!cell.marked) { // if cell has NOT been marked, mark it
             cell.marked = true;
             return true;
-        }
-        else {// if cell is already  marked, unmark it
+        } else {// if cell is already marked, unmark it
             cell.marked = false;
             return false;
         }
     }
 
-    public int expose (int column, int row ) {
+    public int expose(int column, int row) {
         Cell cell = grid[row][column];
 
-        if (cell.hashMine) { //game over, exposed mine
+        if (cell.hashMine) { // game over, exposed mine
             lost = true;
             return -1;
         }
-        if (cell.exposed) return -2;
+        if (cell.exposed)
+            return -2;
 
         cell.exposed = true;
         numExposedCells++;
@@ -125,8 +125,8 @@ public class MineField extends Application {
 
         if (n == 0) {
             int w = width, h = height;
-            boolean changed =true;
-            while(changed) {
+            boolean changed = true;
+            while (changed) {
                 int rr, cc;
                 changed = false;
                 for (rr = 0; rr < h; rr++) {
@@ -136,21 +136,24 @@ public class MineField extends Application {
                         }
                     }
                 }
-            };
+            }
+            ;
         }
         return n;
     }
 
     public boolean isExposed(int column, int row) {
         Cell cell = grid[row][column];
-        if(!cell.exposed && !cell.hashMine) {
+        if (!cell.exposed && !cell.hashMine) {
             int w = width, h = height;
             int i, j;
             for (j = -1; j <= +1; j++) {
                 for (i = -1; i <= +1; i++) {
-                    if (i == 0 && j ==0 ) continue;
-                    int rr = row+j, cc = column+i;
-                    if (rr < 0 || rr >= h ||  cc <0 || cc >= w) continue;
+                    if (i == 0 && j == 0)
+                        continue;
+                    int rr = row + j, cc = column + i;
+                    if (rr < 0 || rr >= h || cc < 0 || cc >= w)
+                        continue;
                     Cell neighbor = grid[rr][cc];
                     if (neighbor.exposed && neighbor.numbSurroundingmines == 0) {
                         cell.exposed = true;
@@ -169,12 +172,11 @@ public class MineField extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("MineSweeper.fxml"));
         primaryStage.setTitle("MineSweeper");
         primaryStage.setMinHeight(900);
         primaryStage.setMinWidth(950);
-
 
         primaryStage.setOnCloseRequest(event -> {
 
@@ -185,7 +187,7 @@ public class MineField extends Application {
                     }
                 }
             });
-    });
+        });
 
         Scene scene = new Scene(root, 900, 900);
 
@@ -194,6 +196,6 @@ public class MineField extends Application {
     }
 
     public static void main(String[] args) {
-       launch(args);
+        launch(args);
     }
 }

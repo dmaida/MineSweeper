@@ -1,6 +1,5 @@
 package MineSweeper;
 
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -89,36 +88,34 @@ public class Controller {
     }
 
     @FXML
-    public void startButton ( ) {
+    public void startButton() {
         restartTime();
         mineField = new MineField();
         mineField.createMineField(level);
         makeButtons();
     }
 
-    public void setTimer () {
-
+    public void setTimer() {
 
         MineField.timer = new Timer();
         TimerTask task = new TimerTask() {
             int i = 0;
 
-
             @Override
             public void run() {
                 Platform.runLater(new Runnable() {
                     public void run() {
-                        clock.setText(i+"");
+                        clock.setText(i + "");
                         i++;
                     }
                 });
             }
         };
 
-        MineField.timer.schedule(task, 0 , 1000);
+        MineField.timer.schedule(task, 0, 1000);
     }
 
-    public void restartTime () {
+    public void restartTime() {
 
         Platform.runLater(new Runnable() {
             public void run() {
@@ -147,7 +144,7 @@ public class Controller {
         stopTime();
         minesLeft.setText("You Lost");
         for (int r = 0; r < mineField.height; r++) {
-            for (int c = 0; c <  mineField.width; c++) {
+            for (int c = 0; c < mineField.width; c++) {
                 if (mineField.grid[r][c].hashMine) {
                     buttonMatrix[r][c].setText("");
                     buttonMatrix[r][c].setBackground(Background.EMPTY);
@@ -165,27 +162,25 @@ public class Controller {
 
     public void updateView() {
 
-        minesLeft.setText(mineField.unexposedCount() +"");
+        minesLeft.setText(mineField.unexposedCount() + "");
 
         if (mineField.unexposedCount() == 0) {
             win();
         }
         for (int r = 0; r < mineField.height; r++) {
             for (int c = 0; c < mineField.width; c++) {
-               if (mineField.grid[r][c].exposed && mineField.grid[r][c].numbSurroundingmines == 0 ) {
-                   buttonMatrix[r][c].setVisible(false);
-               }
+                if (mineField.grid[r][c].exposed && mineField.grid[r][c].numbSurroundingmines == 0) {
+                    buttonMatrix[r][c].setVisible(false);
+                }
 
-                else if(mineField.grid[r][c].exposed) {
-                   buttonMatrix[r][c].setBackground(Background.EMPTY);
-                   buttonMatrix[r][c].setText(mineField.grid[r][c].numbSurroundingmines+"");
-               }
-                else if (mineField.grid[r][c].marked) {
-                   buttonMatrix[r][c].setText("X");
-               }
-                else if (!mineField.grid[r][c].marked) {
-                   buttonMatrix[r][c].setText("");
-               }
+                else if (mineField.grid[r][c].exposed) {
+                    buttonMatrix[r][c].setBackground(Background.EMPTY);
+                    buttonMatrix[r][c].setText(mineField.grid[r][c].numbSurroundingmines + "");
+                } else if (mineField.grid[r][c].marked) {
+                    buttonMatrix[r][c].setText("X");
+                } else if (!mineField.grid[r][c].marked) {
+                    buttonMatrix[r][c].setText("");
+                }
             }
         }
         if (mineField.lost) {
@@ -193,13 +188,12 @@ public class Controller {
         }
     }
 
-    public void makeButtons ( ) {
-        minesLeft.setText(mineField.unexposedCount() +"");
+    public void makeButtons() {
+        minesLeft.setText(mineField.unexposedCount() + "");
         gp.getColumnConstraints().removeAll(gp.getColumnConstraints());
         gp.getRowConstraints().removeAll(gp.getRowConstraints());
         gp.getChildren().removeAll(gp.getChildren());
         buttonMatrix = new Button[row][col];
-
 
         for (int i = 0; i < row; i++) {
             RowConstraints row = new RowConstraints();
